@@ -40,8 +40,8 @@ WL.registerComponent('bullet-physics', {
         this.object.getTranslationWorld(this.position);
         //deactivate bullet if through the floor
         if(this.position[1] <= floorHeight + this.collision.extents[0]) {
-            console.log("bullet penetrated floor >> "+this.position[1]+" <= "+floorHeight + this.collision.extents[0]
-            + " ( " + floorHeight, ", ", this.collision.extents[0]," )");
+            // console.log("bullet penetrated floor >> "+this.position[1]+" <= "+floorHeight + this.collision.extents[0]
+            // + " ( " + floorHeight, ", ", this.collision.extents[0]," )");
             this.active = false;
             return;
         }

@@ -12,6 +12,7 @@
 */
 var score = 0;
 var victoryMusic = null;
+var gameOver = false;
 /**
 @brief Score trigger
 
@@ -53,6 +54,7 @@ WL.registerComponent('score-trigger', {
                     bgMusic.stop();
                     mouseSound.stop();
                     resetButton.unhide();
+                    gameOver = true;
                 }
                 
                 updateScore(scoreString);
