@@ -1,3 +1,5 @@
+import { Component, Type } from "@wonderlandengine/api";
+
 /*
       Copyright 2021. Futurewei Technologies Inc. All rights reserved.
       Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,21 +20,23 @@ var updateCounter = null;
 The center top text object that shows various helpful tutorial
 texts and the score.
 */
-WL.registerComponent('shot-counter', {
-}, {
-    init: function() {
-        this.text = this.object.getComponent('text');
+export class ShotCounter extends Component {
+  static TypeName = "shot-counter";
+  static Properties = {};
 
-        updateCounter = function() {
-            if(!gameOver){
-                this.text.text = "Shots Fired: " + shotCount;
-            }
-        }.bind(this);
+  init() {
+    this.text = this.object.getComponent("text");
 
-        // updateScore("");
-        /* Initial text to set after session started */
-        WL.onXRSessionStart.push(function() {
-            // updateScore("Slowly scan\narea");
-        });
-    },
-});
+    updateCounter = function () {
+      if (!gameOver) {
+        this.text.text = "Shots Fired: " + shotCount;
+      }
+    }.bind(this);
+
+    // updateScore("");
+    /* Initial text to set after session started */
+    this.engine.onXRSessionStart.push(function () {
+      // updateScore("Slowly scan\narea");
+    });
+  }
+}

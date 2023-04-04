@@ -10,63 +10,55 @@
       See the License for the specific language governing permissions and
       limitations under the License.
 */
-// var wastebinSpawner = null;
+import { Component, Type } from "@wonderlandengine/api";
+
 var floorHeight = 0;
 
-/**
-@brief
-*/
-WL.registerComponent('target-spawner', {
-    targetMesh: {type: WL.Type.Mesh},
-    targetMaterial: {type: WL.Type.Material},
-    spawnAnimation: {type: WL.Type.Animation},
-    maxTargets: {type: WL.Type.Int, default: 20},
-    particles: {type: WL.Type.Object},
-}, {
-    init: function() {
+export class TargetSpawner extends Component {
+    static TypeName = "target-spawner";
+    static Properties = {
+        targetMesh: { type: Type.Mesh },
+        targetMaterial: { type: Type.Material },
+        spawnAnimation: { type: Type.Animation },
+        maxTargets: { type: Type.Int, default: 20 },
+        particles: { type: Type.Object },
+    };
+
+    init() {
         this.time = 0;
         this.spawnInterval = 3;
-    },
-    start: function() {
-        // WL.onXRSessionStart.push(this.xrSessionStart.bind(this));
+    }
+
+    start() {
         this.targets = [];
-
-        // targetSpawner = this;
         this.spawnTarget();
-    },
-    update: function(dt) {
-        this.time += dt;
-        if(this.targets.length >= this.maxTargets) return;
+    }
 
-        if(this.time >= this.spawnInterval){
+    update(dt) {
+        this.time += dt;
+        if (this.targets.length >= this.maxTargets) return;
+
+        if (this.time >= this.spawnInterval) {
             this.time = 0;
             this.spawnTarget();
         }
+    }
 
-        // updateScore("Place a target");
-    },
-    spawnTarget: function() {
-        // console.log("target-spawner >> spawnTarget");
-        // if(this.targets.length >= this.maxTargets) return;
+    spawnTarget() {
         /* Only spawn object if cursor is visible */
 
-        const obj = WL.scene.addObject();
+        const obj = this.engine.scene.addObject();
         obj.transformLocal.set(this.object.transformWorld);
 
-        // const pos = [0, 0, 0];
-        // this.object.getTranslationWorld(pos);
-        // /* Make sure balls and confetti land on the floor */
-        // floorHeight = pos[1];
-
-        const mesh = obj.addComponent('mesh');
+        const mesh = obj.addComponent("mesh");
         mesh.mesh = this.targetMesh;
         mesh.material = this.targetMaterial;
         mesh.active = true;
 
         obj.addComponent("target");
 
-        if(this.spawnAnimation) {
-            const anim = obj.addComponent('animation');
+        if (this.spawnAnimation) {
+            const anim = obj.addComponent("animation");
             anim.playCount = 1;
             anim.animation = this.spawnAnimation;
             anim.active = true;
@@ -74,41 +66,20 @@ WL.registerComponent('target-spawner', {
         }
 
         /* Add scoring trigger */
-        const trigger = WL.scene.addObject(obj);
-        const col = trigger.addComponent('collision');
+        const trigger = this.engine.scene.addObject(obj);
+        const col = trigger.addComponent("collision");
         col.collider = WL.Collider.Sphere;
         col.extents[0] = 1;
-        col.group = (1 << 0);
+        col.group = 1 << 0;
         col.active = true;
         trigger.translate([0, 0.7, 0]);
-        trigger.addComponent('score-trigger', {
-            particles: this.particles
+        trigger.addComponent("score-trigger", {
+            particles: this.particles,
         });
 
         obj.setDirty();
 
         this.targets.push(obj);
+    }
 
-        // if(this.targets.length == this.maxTargets) {
-        //     updateScore("Swipe to\nthrow");
-        //     // paperBallSpawner.getComponent('mesh').active = true;
-        //     paperBallSpawner.getComponent('paperball-spawner').active = true;
-        //     /* Hide cursor */
-        //     this.object.getComponent('mesh').active = false;
-        // }
-    },
-    // destroyTarget: function(){
-    //     console.log("destroyTarget");
-    //     // this.targets.pop();
-    // }
-    // onActivate: function() {
-    //     if(WL.xrSession) {
-    //         WL.xrSession.addEventListener('select', this.onClick.bind(this));
-    //     }
-    // },
-    // xrSessionStart: function(session) {
-    //     if(this.active) {
-    //         session.addEventListener('select', this.onClick.bind(this));
-    //     }
-    // },
-});
+}

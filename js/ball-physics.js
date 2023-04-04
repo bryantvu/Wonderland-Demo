@@ -1,3 +1,6 @@
+import { Component, Type } from "@wonderlandengine/api";
+import { vec3, quat } from "gl-matrix";
+
 /*
       Copyright 2021. Futurewei Technologies Inc. All rights reserved.
       Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,29 +25,34 @@ below a certain threshold, after which the component is deactivated.
 This component is also used to attach a "scored" property to track
 already scored paper balls. (See score-trigger and paperball-spawner).
 */
-WL.registerComponent('ball-physics', {
-    bounciness: {type: WL.Type.Float, default: 0.5},
-    weight: {type: WL.Type.Float, default: 1.0}
-}, {
-    init: function() {
-        // console.log("ball-physics >> init");
+export class BallPhysics extends Component {
+    static TypeName = "ball-physics";
+    static Properties = {
+        bounciness: { type: Type.Float, default: 0.5 },
+        weight: { type: Type.Float, default: 1.0 },
+    };
+
+    init() {
         this.pos = new Float32Array(3);
         this.velocity = new Float32Array(3);
 
-        this.collision = this.object.getComponent('collision', 0);
-        if(!this.collision) {
-            console.warn("'ball-physics' component on object", this.object.name, "requires a collision component");
+        this.collision = this.object.getComponent("collision", 0);
+        if (!this.collision) {
+            console.warn(
+                "'ball-physics' component on object",
+                this.object.name,
+                "requires a collision component"
+            );
         }
-    },
+    }
 
-    update: function(dt) {
-        // console.log("ball-physics >> update");
+    update(dt) {
         /* Remember the last position */
         this.object.getTranslationWorld(this.pos);
 
         /* Don't fall through the floor */
-        if(this.pos[1] <= floorHeight + this.collision.extents[0]) {
-            if(Math.abs(this.velocity[0]) <= 0.001) {
+        if (this.pos[1] <= floorHeight + this.collision.extents[0]) {
+            if (Math.abs(this.velocity[0]) <= 0.001) {
                 this.velocity[1] = 0;
             } else {
                 /* bounce */
@@ -55,10 +63,11 @@ WL.registerComponent('ball-physics', {
             this.velocity[2] *= 0.5;
         }
 
-        if(Math.abs(this.velocity[0]) <= 0.01 &&
-           Math.abs(this.velocity[1]) <= 0.01 &&
-           Math.abs(this.velocity[2]) <= 0.01)
-        {
+        if (
+            Math.abs(this.velocity[0]) <= 0.01 &&
+            Math.abs(this.velocity[1]) <= 0.01 &&
+            Math.abs(this.velocity[2]) <= 0.01
+        ) {
             /* Deactivating this object preserves performance,
              * update() will no longer be called */
             this.active = false;
@@ -68,14 +77,14 @@ WL.registerComponent('ball-physics', {
         /* Apply velocity to position */
         const tmp = [0, 0, 0];
         const quat = [0, 0, 0, 0];
-        glMatrix.vec3.scale(tmp, this.velocity, dt);
-        if(this.object.parent) {
-            glMatrix.quat.conjugate(quat, this.object.parent.transformWorld);
-            glMatrix.vec3.transformQuat(tmp, tmp, quat);
+        vec3.scale(tmp, this.velocity, dt);
+        if (this.object.parent) {
+            quat.conjugate(quat, this.object.parent.transformWorld);
+            vec3.transformQuat(tmp, tmp, quat);
         }
         this.object.translate(tmp);
 
         /* Apply gravity to velocity */
-        this.velocity[1] -= this.weight*9.81*dt;
-    },
-});
+        this.velocity[1] -= this.weight * 9.81 * dt;
+    }
+}
