@@ -5,6 +5,8 @@ deploy/
 models/
 ssl/
 static/
+node_modules/
+.editor/
 
 # General
 .DS_Store
