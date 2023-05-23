@@ -48,7 +48,6 @@ export class MouseSpawner extends Component {
       volume: 1.0,
     });
 
-      this.maxTargets = 2;
     state.maxTargets = this.maxTargets;
 
     this.spawnTarget();

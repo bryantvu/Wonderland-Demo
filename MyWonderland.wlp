@@ -1481,8 +1481,8 @@
             ],
             "name": "ButtonMesh",
             "translation": [
-                -0.0000093,
-                0.0139376,
+                0.0229984,
+                0.0139383,
                 -0.0182402
             ],
             "rotation": [
@@ -1517,7 +1517,7 @@
                             "extents": [
                                 0.6,
                                 0.4,
-                                1.0
+                                0.3
                             ]
                         }
                     }
@@ -1706,7 +1706,7 @@
                     "paperball-spawner": {
                         "paperballMesh": "9",
                         "paperballMaterial": "20",
-                        "ballSpeed": 5.0
+                        "ballSpeed": 40.0
                     }
                 }
             ],
@@ -2610,7 +2610,7 @@
             },
             "parent": "772",
             "translation": [
-                12.4661111,
+                12.466111,
                 0.3682987,
                 2.1683902
             ],
@@ -2676,7 +2676,7 @@
                 0.0,
                 1.0,
                 0.0,
-                -1.6292079862978426e-7
+                -1.6292079862978428e-7
             ],
             "scaling": [
                 0.2452231,
@@ -2931,7 +2931,7 @@
                 0.0,
                 1.0,
                 0.0,
-                -1.6292079862978426e-7
+                -1.6292079862978428e-7
             ],
             "scaling": [
                 0.2452231,
@@ -3243,11 +3243,6 @@
         },
         "772": {
             "name": "Farm",
-            "components": [
-                {
-                    "type": "collision"
-                }
-            ],
             "translation": [
                 0.0,
                 -0.3,
@@ -3270,7 +3265,7 @@
             "parent": "772",
             "translation": [
                 -0.0000029,
-                -8.943723628362932e-8,
+                -8.943723628362933e-8,
                 0.0000017
             ],
             "rotation": [
@@ -4832,76 +4827,10 @@
                 "file": "models\\oculus-touch-v2-right.glb"
             }
         },
-        "231": {
-            "link": {
-                "name": "texture_0",
-                "file": "assets\\scene.gltf"
-            }
-        },
-        "284": {
-            "link": {
-                "name": "texture_0",
-                "file": "assets\\batCat_Creature.gltf"
-            }
-        },
-        "285": {
-            "link": {
-                "name": "texture_1",
-                "file": "assets\\batCat_Creature.gltf"
-            }
-        },
-        "286": {
-            "link": {
-                "name": "texture_2",
-                "file": "assets\\batCat_Creature.gltf"
-            }
-        },
-        "484": {
-            "link": {
-                "name": "texture_0",
-                "file": "assets\\anime_starry_night\\scene.gltf"
-            }
-        },
         "771": {
             "link": {
                 "name": "sDNMMyv.png",
                 "file": "assets\\sDNMMyv.png"
-            }
-        },
-        "824": {
-            "link": {
-                "name": "texture_0",
-                "file": "assets\\uploads_files_2109779_Duck.fbx"
-            }
-        },
-        "825": {
-            "link": {
-                "name": "texture_1",
-                "file": "assets\\uploads_files_2109779_Duck.fbx"
-            }
-        },
-        "826": {
-            "link": {
-                "name": "texture_2",
-                "file": "assets\\uploads_files_2109779_Duck.fbx"
-            }
-        },
-        "827": {
-            "link": {
-                "name": "texture_3",
-                "file": "assets\\uploads_files_2109779_Duck.fbx"
-            }
-        },
-        "828": {
-            "link": {
-                "name": "texture_4",
-                "file": "assets\\uploads_files_2109779_Duck.fbx"
-            }
-        },
-        "829": {
-            "link": {
-                "name": "texture_5",
-                "file": "assets\\uploads_files_2109779_Duck.fbx"
             }
         },
         "898": {
@@ -4920,12 +4849,6 @@
             "link": {
                 "name": "texture_2",
                 "file": "assets\\uploads_files_3861195_Mouse_GLB.glb"
-            }
-        },
-        "911": {
-            "link": {
-                "name": "texture_0",
-                "file": "assets\\duck_walk_free.glb"
             }
         }
     },
@@ -4970,36 +4893,6 @@
                 256
             ]
         },
-        "230": {
-            "link": {
-                "name": "image_0",
-                "file": "assets\\scene.gltf"
-            }
-        },
-        "281": {
-            "link": {
-                "name": "batCat_Diffuse_final",
-                "file": "assets\\batCat_Creature.gltf"
-            }
-        },
-        "282": {
-            "link": {
-                "name": "batCat_roughMap",
-                "file": "assets\\batCat_Creature.gltf"
-            }
-        },
-        "283": {
-            "link": {
-                "name": "batCat_Normal2048",
-                "file": "assets\\batCat_Creature.gltf"
-            }
-        },
-        "483": {
-            "link": {
-                "name": "image_0",
-                "file": "assets\\anime_starry_night\\scene.gltf"
-            }
-        },
         "770": {
             "link": {
                 "name": "sDNMMyv.png",
@@ -5023,12 +4916,6 @@
             "link": {
                 "name": "congau",
                 "file": "assets\\uploads_files_3861195_Mouse_GLB.glb"
-            }
-        },
-        "910": {
-            "link": {
-                "name": "image_0",
-                "file": "assets\\duck_walk_free.glb"
             }
         }
     },
@@ -5418,9 +5305,9 @@
             },
             "Phong": {
                 "ambientColor": [
-                    0.0941176,
-                    0.0420761,
-                    0.0,
+                    0.5246636,
+                    0.5246636,
+                    0.5246636,
                     1.0
                 ],
                 "diffuseColor": [
@@ -5607,9 +5494,9 @@
             "Phong": {
                 "ambientFactor": 0.2,
                 "ambientColor": [
-                    0.0214071,
-                    0.1137254,
-                    0.0,
+                    0.2230047,
+                    0.6905829,
+                    0.114581,
                     1.0
                 ]
             }
@@ -5621,9 +5508,9 @@
             },
             "Phong": {
                 "ambientColor": [
-                    0.0161476,
-                    0.1372548,
-                    0.0,
+                    0.2821964,
+                    0.883408,
+                    0.202035,
                     1.0
                 ],
                 "ambientFactor": 0.2
@@ -5943,7 +5830,7 @@
             "version": [
                 1,
                 0,
-                0
+                1
             ]
         },
         "vr": {
@@ -5960,7 +5847,7 @@
             "bundlingType": "esbuild"
         },
         "runtime": {
-            "visualizeColliders": false,
+            "visualizeColliders": true,
             "webxr": {
                 "optionalFeatures": {
                     "local-floor": true
@@ -5978,38 +5865,7 @@
             ]
         }
     },
-    "animations": {
-        "380": {
-            "link": {
-                "name": "defaultPose",
-                "file": "assets\\batCat_Creature.gltf"
-            }
-        },
-        "381": {
-            "link": {
-                "name": "pose1",
-                "file": "assets\\batCat_Creature.gltf"
-            }
-        },
-        "438": {
-            "link": {
-                "name": "idle",
-                "file": "assets\\duck\\scene.gltf"
-            }
-        },
-        "439": {
-            "link": {
-                "name": "walk",
-                "file": "assets\\duck\\scene.gltf"
-            }
-        },
-        "969": {
-            "link": {
-                "name": "walk",
-                "file": "assets\\duck_walk_free.glb"
-            }
-        }
-    },
+    "animations": {},
     "skins": {
         "133": {
             "link": {
@@ -6078,306 +5934,6 @@
                 "192",
                 "193"
             ]
-        },
-        "294": {
-            "link": {
-                "name": "batCat_Rigging",
-                "file": "assets\\batCat_Creature.gltf"
-            },
-            "joints": []
-        },
-        "437": {
-            "link": {
-                "name": "skin_0",
-                "file": "assets\\duck\\scene.gltf"
-            },
-            "joints": []
-        },
-        "440": {
-            "link": {
-                "name": "skin_0",
-                "file": "assets\\duck\\scene.gltf"
-            },
-            "joints": [
-                "447",
-                "448",
-                "449",
-                "450",
-                "451",
-                "452",
-                "453",
-                "454",
-                "455",
-                "456",
-                "457",
-                "458",
-                "459",
-                "460",
-                "461",
-                "462",
-                "463",
-                "464",
-                "465"
-            ]
-        },
-        "782": {
-            "link": {
-                "name": "skin_0",
-                "file": "assets\\duck\\scene.gltf"
-            },
-            "joints": [
-                "789",
-                "790",
-                "791",
-                "792",
-                "793",
-                "794",
-                "795",
-                "796",
-                "797",
-                "798",
-                "799",
-                "800",
-                "801",
-                "802",
-                "803",
-                "804",
-                "805",
-                "806",
-                "807"
-            ]
-        },
-        "839": {
-            "link": {
-                "name": "skin_0",
-                "file": "assets\\uploads_files_2109779_Duck.fbx"
-            },
-            "joints": [
-                "850",
-                "858",
-                "859",
-                "860",
-                "862",
-                "863",
-                "865",
-                "866",
-                "868",
-                "869",
-                "870",
-                "871",
-                "872",
-                "874",
-                "875",
-                "876",
-                "877",
-                "878",
-                "880",
-                "881",
-                "882",
-                "883",
-                "884",
-                "885",
-                "886",
-                "888",
-                "889",
-                "890",
-                "891",
-                "892",
-                "893",
-                "850",
-                "858",
-                "859",
-                "860",
-                "862",
-                "863",
-                "865",
-                "866",
-                "868",
-                "869",
-                "870",
-                "871",
-                "872",
-                "874",
-                "875",
-                "876",
-                "877",
-                "878",
-                "880",
-                "881",
-                "882",
-                "883",
-                "884",
-                "885",
-                "886",
-                "888",
-                "889",
-                "890",
-                "891",
-                "892",
-                "893",
-                "850",
-                "858",
-                "859",
-                "860",
-                "862",
-                "863",
-                "865",
-                "866",
-                "868",
-                "869",
-                "870",
-                "871",
-                "872",
-                "874",
-                "875",
-                "876",
-                "877",
-                "878",
-                "880",
-                "881",
-                "882",
-                "883",
-                "884",
-                "885",
-                "886",
-                "888",
-                "889",
-                "890",
-                "891",
-                "892",
-                "893",
-                "850",
-                "858",
-                "859",
-                "860",
-                "862",
-                "863",
-                "865",
-                "866",
-                "868",
-                "869",
-                "870",
-                "871",
-                "872",
-                "874",
-                "875",
-                "876",
-                "877",
-                "878",
-                "880",
-                "881",
-                "882",
-                "883",
-                "884",
-                "885",
-                "886",
-                "888",
-                "889",
-                "890",
-                "891",
-                "892",
-                "893",
-                "850",
-                "858",
-                "859",
-                "860",
-                "862",
-                "863",
-                "865",
-                "866",
-                "868",
-                "869",
-                "870",
-                "871",
-                "872",
-                "874",
-                "875",
-                "876",
-                "877",
-                "878",
-                "880",
-                "881",
-                "882",
-                "883",
-                "884",
-                "885",
-                "886",
-                "888",
-                "889",
-                "890",
-                "891",
-                "892",
-                "893",
-                "850",
-                "858",
-                "859",
-                "860",
-                "862",
-                "863",
-                "865",
-                "866",
-                "868",
-                "869",
-                "870",
-                "871",
-                "872",
-                "874",
-                "875",
-                "876",
-                "877",
-                "878",
-                "880",
-                "881",
-                "882",
-                "883",
-                "884",
-                "885",
-                "886",
-                "888",
-                "889",
-                "890",
-                "891",
-                "892",
-                "893",
-                "850",
-                "858",
-                "859",
-                "860",
-                "862",
-                "863",
-                "865",
-                "866",
-                "868",
-                "869",
-                "870",
-                "871",
-                "872",
-                "874",
-                "875",
-                "876",
-                "877",
-                "878",
-                "880",
-                "881",
-                "882",
-                "883",
-                "884",
-                "885",
-                "886",
-                "888",
-                "889",
-                "890",
-                "891",
-                "892",
-                "893"
-            ]
-        },
-        "914": {
-            "link": {
-                "name": "skin_0",
-                "file": "assets\\duck_walk_free.glb"
-            },
-            "joints": []
         }
     },
     "pipelines": {
@@ -6412,6 +5968,9 @@
             "link": {
                 "name": "Phong Opaque",
                 "file": "default"
+            },
+            "features": {
+                "WITH_FOG": false
             }
         },
         "38": {
@@ -6421,7 +5980,9 @@
             },
             "castShadows": true,
             "features": {
-                "ALPHA_MASKED": false
+                "ALPHA_MASKED": false,
+                "WITH_FOG": false,
+                "WITH_EMISSIVE": false
             }
         },
         "39": {
