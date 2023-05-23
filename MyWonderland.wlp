@@ -182,7 +182,9 @@
                             0.4196078
                         ],
                         "shadows": true,
-                        "range": 50.0
+                        "range": 50.0,
+                        "cascadeCount": 2,
+                        "shadowRange": 20.0
                     }
                 }
             ],
