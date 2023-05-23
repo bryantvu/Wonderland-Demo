@@ -11,10 +11,10 @@
       limitations under the License.
 */
 import { Component, Type } from "@wonderlandengine/api";
+import {state} from "./game";
 
-var score = 0;
-var victoryMusic = null;
-var gameOver = false;
+const tempQuat2 = new Float32Array(8);
+
 /**
 @brief Score trigger
 
@@ -40,43 +40,20 @@ export class ScoreTrigger extends Component {
       src: "sfx/pop-94319.mp3",
       volume: 1.9,
     });
-    victoryMusic = this.object.addComponent("howler-audio-source", {
+    state.victoryMusic = this.object.addComponent("howler-audio-source", {
       src: "music/level-win-6416.mp3",
       volume: 1.9,
     });
   }
 
-  update(dt) {
-    let overlaps = this.collision.queryOverlaps();
-
-    for (let i = 0; i < overlaps.length; ++i) {
-      let p = overlaps[i].object.getComponent("bullet-physics");
-
-      if (p && !p.scored) {
-        p.scored = true;
-        this.particles.transformWorld.set(this.object.transformWorld);
+  onHit() {
+        this.particles.setTransformWorld(this.object.getTransformWorld(tempQuat2));
         this.particles.getComponent("confetti-particles").burst();
         this.object.parent.destroy();
 
-        ++score;
-
-        let scoreString = "";
-        if (maxTargets != score) {
-          scoreString = score + " rats down, " + (maxTargets - score) + " left";
-        } else {
-          scoreString = "Congrats, you got all the rats!";
-          victoryMusic.play();
-          bgMusic.stop();
-          mouseSound.stop();
-          resetButton.unhide();
-          gameOver = true;
-        }
-
-        updateScore(scoreString);
+        state.incrementScore();
 
         this.soundHit.play();
         this.soundPop.play();
-      }
-    }
   }
 }

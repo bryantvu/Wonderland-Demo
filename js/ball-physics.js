@@ -1,5 +1,5 @@
 import { Component, Type } from "@wonderlandengine/api";
-import { vec3, quat } from "gl-matrix";
+import { vec3 } from "gl-matrix";
 
 /*
       Copyright 2021. Futurewei Technologies Inc. All rights reserved.
@@ -13,6 +13,11 @@ import { vec3, quat } from "gl-matrix";
       See the License for the specific language governing permissions and
       limitations under the License.
 */
+
+const floorHeight = 0;
+
+const tmp = new Float32Array(3);
+
 /**
 @brief Ball Physics
 
@@ -48,7 +53,7 @@ export class BallPhysics extends Component {
 
     update(dt) {
         /* Remember the last position */
-        this.object.getTranslationWorld(this.pos);
+        this.object.getPositionWorld(this.pos);
 
         /* Don't fall through the floor */
         if (this.pos[1] <= floorHeight + this.collision.extents[0]) {
@@ -63,6 +68,11 @@ export class BallPhysics extends Component {
             this.velocity[2] *= 0.5;
         }
 
+        if (this.pos[1] > 100 || Math.abs(this.pos[0]) > 100 || Math.abs(this.pos[2]) > 100) {
+            /* Flew out of the world - mark for destroy */
+            this.velocity.fill(0);
+        }
+
         if (
             Math.abs(this.velocity[0]) <= 0.01 &&
             Math.abs(this.velocity[1]) <= 0.01 &&
@@ -70,19 +80,16 @@ export class BallPhysics extends Component {
         ) {
             /* Deactivating this object preserves performance,
              * update() will no longer be called */
-            this.active = false;
+            setTimeout(() => this.destroy(), 0);
             return;
         }
 
         /* Apply velocity to position */
-        const tmp = [0, 0, 0];
-        const quat = [0, 0, 0, 0];
         vec3.scale(tmp, this.velocity, dt);
         if (this.object.parent) {
-            quat.conjugate(quat, this.object.parent.transformWorld);
-            vec3.transformQuat(tmp, tmp, quat);
+            this.object.parent.transformPointInverseWorld(tmp, tmp);
         }
-        this.object.translate(tmp);
+        this.object.translateLocal(tmp);
 
         /* Apply gravity to velocity */
         this.velocity[1] -= this.weight * 9.81 * dt;

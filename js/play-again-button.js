@@ -1,4 +1,5 @@
-import { Component, Type } from "@wonderlandengine/api";
+import { Component } from "@wonderlandengine/api";
+import {state} from "./game";
 
 /*
       Copyright 2021. Futurewei Technologies Inc. All rights reserved.
@@ -12,7 +13,7 @@ import { Component, Type } from "@wonderlandengine/api";
       See the License for the specific language governing permissions and
       limitations under the License.
 */
-var resetButton = null;
+
 /**
 @brief Button to reset to placing a Wastebin
 
@@ -25,38 +26,19 @@ export class PlayAgainButton extends Component {
   static TypeName = "play-again-button";
   static Properties = {};
 
-  init() {
+  start() {
     this.collision = this.object.getComponent("collision");
-    // this.soundHit = this.object.addComponent('howler-audio-source', {src: 'sfx/high-pitched-aha-103125.mp3', volume: 1.9 });
     this.soundPop = this.object.addComponent("howler-audio-source", {
       src: "sfx/pop-94319.mp3",
       volume: 1.9,
     });
-    // victoryMusic = this.object.addComponent('howler-audio-source', {src: 'music/level-win-6416.mp3', volume: 1.9 });
-  }
 
-  start() {
-    resetButton = this;
+    state.resetButton = this;
     this.hide();
   }
 
   restart() {
-    for (let i = 0; i < mouseSpawner.targets.length; ++i) {
-      mouseSpawner.targets[i].destroy();
-      mouseSpawner.object.resetTranslation();
-    }
-    mouseSpawner.targets = [];
-
-    victoryMusic.stop();
-    bgMusic.play();
-
-    gameOver = false;
-    shotCount = 0;
-    score = 0;
-    updateCounter();
-    updateScore("Eliminate all 20 Rats.");
-
-    // mouseSpawner.object.getComponent('mesh').active = true;
+    state.restart();
     this.hide();
   }
 
@@ -74,18 +56,12 @@ export class PlayAgainButton extends Component {
 
   update(dt) {
     let overlaps = this.collision.queryOverlaps();
-    // console.log("play-again-button >> overlaps >> "+ overlaps.length);
     for (let i = 0; i < overlaps.length; ++i) {
       let p = overlaps[i].object.getComponent("bullet-physics");
-      // console.log("play-again-button >> overlap check");
       if (p) {
-        // console.log("play-again-button >> ball detected");
         this.restart();
         this.soundPop.play();
       }
-      // else{
-      //     console.log("play-again-button >> no ball");
-      // }
     }
   }
 }

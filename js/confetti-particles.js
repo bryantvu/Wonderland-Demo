@@ -13,6 +13,11 @@
 import { Component, Type } from "@wonderlandengine/api";
 import { vec3, quat, quat2 } from "gl-matrix";
 
+const floorHeight = 0;
+
+let distance = new Float32Array(3);
+const tmp = new Float32Array(4);
+
 /**
 @brief Confetti Particle System
 
@@ -94,9 +99,6 @@ export class ConfettiParticles extends Component {
         }
 
         /* Target for retrieving particles world locations */
-        let distance = [0, 0, 0];
-        const tmp = [0, 0, 0, 0];
-
         for (let i = 0; i < this.activeCount; ++i) {
             let o = this.objects[i];
             let obj = o.object;

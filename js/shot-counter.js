@@ -1,4 +1,4 @@
-import { Component, Type } from "@wonderlandengine/api";
+import { Component } from "@wonderlandengine/api";
 
 /*
       Copyright 2021. Futurewei Technologies Inc. All rights reserved.
@@ -12,8 +12,9 @@ import { Component, Type } from "@wonderlandengine/api";
       See the License for the specific language governing permissions and
       limitations under the License.
 */
-/* Global function used to update the score display */
-var updateCounter = null;
+
+import { state } from "./game";
+
 /**
 @brief Marks an object with text component as "score display"
 
@@ -27,16 +28,10 @@ export class ShotCounter extends Component {
   init() {
     this.text = this.object.getComponent("text");
 
-    updateCounter = function () {
-      if (!gameOver) {
-        this.text.text = "Shots Fired: " + shotCount;
+    state.updateCounter = () => {
+      if (!state.gameOver) {
+        this.text.text = "Shots Fired: " + state.shotCount;
       }
-    }.bind(this);
-
-    // updateScore("");
-    /* Initial text to set after session started */
-    this.engine.onXRSessionStart.push(function () {
-      // updateScore("Slowly scan\narea");
-    });
+    };
   }
 }

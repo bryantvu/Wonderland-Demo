@@ -13,6 +13,10 @@ import { vec3 } from "gl-matrix";
       See the License for the specific language governing permissions and
       limitations under the License.
 */
+
+const floorHeight = 0;
+let newDir = new Float32Array(3);
+
 /**
 @brief Bullet Physics
 
@@ -20,14 +24,14 @@ import { vec3 } from "gl-matrix";
 export class BulletPhysics extends Component {
   static TypeName = "bullet-physics";
   static Properties = {
-    speed: { type: Type.Float, default: 1.0 },
+    speed: { type: Type.Float, default: 10.0 },
   };
 
   init() {
     this.dir = new Float32Array(3);
     this.position = [0, 0, 0];
-    this.object.getTranslationWorld(this.position);
-    this.correctedSpeed = this.speed / 6;
+    this.object.getPositionWorld(this.position);
+    this.correctedSpeed = this.speed;
 
     this.collision = this.object.getComponent("collision", 0);
     if (!this.collision) {
@@ -40,32 +44,35 @@ export class BulletPhysics extends Component {
   }
 
   update(dt) {
-    //error checking?
-    if (isNaN(dt)) {
-      console.log("dt is NaN");
-      return;
-    }
-
-    //update position
-    this.object.getTranslationWorld(this.position);
-    //deactivate bullet if through the floor
+    this.object.getPositionWorld(this.position);
     if (this.position[1] <= floorHeight + this.collision.extents[0]) {
-      this.active = false;
-      return;
-    }
-    //deactivate bullet if travel distance too far
-    if (glMatrix.vec3.length(this.position) > 175) {
-      this.active = false;
+      this.destroy();
       return;
     }
 
-    let newDir = [0, 0, 0];
-    vec3.add(newDir, newDir, this.dir);
-    vec3.scale(newDir, newDir, this.correctedSpeed);
+    if (vec3.length(this.position) > 175) {
+      this.destroy();
+      return;
+    }
 
+    newDir.set(this.dir);
+    vec3.scale(newDir, newDir, this.correctedSpeed*dt);
     vec3.add(this.position, this.position, newDir);
+    this.object.setPositionLocal(this.position);
 
-    this.object.resetTranslation();
-    this.object.translate(this.position);
+    let overlaps = this.collision.queryOverlaps();
+    for (let i = 0; i < overlaps.length; ++i) {
+      let t = overlaps[i].object.getComponent("score-trigger");
+      if(t && !this.scored) {
+        t.onHit();
+        this.destroy();
+        return;
+      }
+    }
+  }
+
+  destroy() {
+    /* Avoid destroying objects in update() */
+    setTimeout(() => this.object.destroy(), 0);
   }
 }

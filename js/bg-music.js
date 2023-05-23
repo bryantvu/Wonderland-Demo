@@ -1,4 +1,5 @@
 import { Component, Type } from "@wonderlandengine/api";
+import {state} from "./game";
 
 /*
       Copyright 2021. Futurewei Technologies Inc. All rights reserved.
@@ -12,9 +13,7 @@ import { Component, Type } from "@wonderlandengine/api";
       See the License for the specific language governing permissions and
       limitations under the License.
 */
-/* Global function used to update the score display */
-var updateScore = null;
-var bgMusic = null;
+
 /**
 @brief Marks an object with text component as "score display"
 
@@ -26,12 +25,12 @@ export class BgMusic extends Component {
   static Properties = {};
 
   init() {
-    bgMusic = this.object.addComponent("howler-audio-source", {
+    state.bgMusic = this.object.addComponent("howler-audio-source", {
       src: "music/happy-funny-kids-111912.mp3",
       loop: true,
       volume: 0.4,
     });
-    bgMusic.play();
+    state.bgMusic.play();
     this.bgDucks = this.object.addComponent("howler-audio-source", {
       src: "sfx/recording-ducks-binaural-18742.mp3",
       loop: true,

@@ -1,4 +1,7 @@
 import { Component, Type } from "@wonderlandengine/api";
+import {HowlerAudioSource} from "@wonderlandengine/components";
+import {state} from "./game";
+import {ScoreTrigger} from "./score-trigger";
 
 /*
       Copyright 2021. Futurewei Technologies Inc. All rights reserved.
@@ -12,10 +15,8 @@ import { Component, Type } from "@wonderlandengine/api";
       See the License for the specific language governing permissions and
       limitations under the License.
 */
-var floorHeight = 0;
-var maxTargets = 0;
-var mouseSound = null;
-var mouseSpawner = null;
+
+const tempQuat2 = new Float32Array(8);
 
 /**
 @brief
@@ -30,22 +31,27 @@ export class MouseSpawner extends Component {
     particles: { type: Type.Object },
   };
 
-  init() {
-    maxTargets = this.maxTargets;
-    this.time = 0;
-    this.spawnInterval = 3;
-    mouseSound = this.object.addComponent("howler-audio-source", {
+  static onRegister(engine) {
+     engine.registerComponent(ScoreTrigger);
+     engine.registerComponent(HowlerAudioSource);
+  }
+
+  time = 0;
+  spawnInterval = 3;
+  targets = [];
+
+  start() {
+    state.mouseSpawner = this;
+    state.mouseSound = this.object.addComponent(HowlerAudioSource, {
       src: "sfx/critter-40645.mp3",
       loop: true,
       volume: 1.0,
     });
-  }
 
-  start() {
-    this.targets = [];
+      this.maxTargets = 2;
+    state.maxTargets = this.maxTargets;
+
     this.spawnTarget();
-
-    mouseSpawner = this;
   }
 
   update(dt) {
@@ -58,11 +64,18 @@ export class MouseSpawner extends Component {
     }
   }
 
+  reset() {
+    for (let i = 0; i < this.targets.length; ++i) {
+      this.mouseSpawner.targets[i].destroy();
+    }
+    this.object.resetPosition();
+  }
+
   spawnTarget() {
     const obj = this.engine.scene.addObject();
-    obj.transformLocal.set(this.object.transformWorld);
+    obj.setTransformLocal(this.object.getTransformWorld(tempQuat2));
 
-    obj.scale([0.1, 0.1, 0.1]);
+    obj.scaleLocal([0.1, 0.1, 0.1]);
     const mesh = obj.addComponent("mesh");
     mesh.mesh = this.targetMesh;
     mesh.material = this.targetMaterial;
@@ -79,12 +92,14 @@ export class MouseSpawner extends Component {
 
     /* Add scoring trigger */
     const trigger = this.engine.scene.addObject(obj);
-    const col = trigger.addComponent("collision");
-    col.collider = WL.Collider.Sphere;
-    col.extents[0] = 0.6;
-    col.group = 1 << 0;
-    col.active = true;
-    trigger.translate([0, 0.4, 0]);
+    trigger.addComponent("collision", {
+        collider: WL.Collider.Sphere,
+        extents: [0.6, 0, 0],
+        group: 1 << 0,
+        active: true,
+    });
+    /* Translate a lot because of scale and rotation of parent */
+    trigger.translateLocal([0, 0, -4]);
     trigger.addComponent("score-trigger", {
       particles: this.particles,
     });
@@ -92,6 +107,6 @@ export class MouseSpawner extends Component {
     obj.setDirty();
 
     this.targets.push(obj);
-    mouseSound.play();
+    state.mouseSound.play();
   }
 }

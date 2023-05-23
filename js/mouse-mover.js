@@ -11,7 +11,7 @@
       limitations under the License.
 */
 import { Component, Type } from "@wonderlandengine/api";
-import { vec3, quat2 } from "gl-matrix";
+import { vec3 } from "gl-matrix";
 
 /**
 @brief (Unused) Moves a mesh back and forth
@@ -24,24 +24,24 @@ export class MouseMover extends Component {
     speed: { type: Type.Float, default: 1.0 },
   };
 
-  init() {
-    this.time = 0;
-    this.state = 0;
-    this.currentPos = [0, 0, 0];
-    this.pointA = [0, 0, 0];
-    this.pointB = [0, 0, 0];
+  time = 0;
+  state = 0;
+  currentPos = [0, 0, 0];
+  pointA = [0, 0, 0];
+  pointB = [0, 0, 0];
+  moveDuration = 2;
 
-    this.moveDuration = 2;
+  savedAngle = 0;
+  previousAngle = 0;
+  newAngle = 0;
+
+  init() {
     this.travelDistance = this.moveDuration * 1.5;
 
-    quat2.getTranslation(this.currentPos, this.object.transformLocal);
+    this.object.getPositionLocal(this.currentPos);
 
     vec3.add(this.pointA, this.pointA, this.currentPos);
     vec3.add(this.pointB, this.currentPos, [0, 0, 1.5]);
-
-    this.savedAngle = 0;
-    this.previousAngle = 0;
-    this.newAngle = 0;
   }
 
   update(dt) {
@@ -70,12 +70,12 @@ export class MouseMover extends Component {
       this.previousAngle = this.savedAngle;
     }
 
-    this.object.resetTranslation();
+    this.object.resetPosition();
     if (this.time <= this.moveDuration / 2) {
       this.object.resetRotation();
       this.savedAngle = this.time * this.newAngle + this.previousAngle;
-      this.object.rotateAxisAngleDeg([0, 0, 1], this.savedAngle);
-      this.object.rotateAxisAngleDeg([1, 0, 0], 90);
+      this.object.rotateAxisAngleDegLocal([0, 0, 1], this.savedAngle);
+      this.object.rotateAxisAngleDegLocal([1, 0, 0], 90);
     } else {
       vec3.lerp(
         this.currentPos,
@@ -84,6 +84,6 @@ export class MouseMover extends Component {
         this.time - this.moveDuration / 2
       );
     }
-    this.object.translate(this.currentPos);
+    this.object.translateLocal(this.currentPos);
   }
 }
