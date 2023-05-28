@@ -1,3 +1,6 @@
+import { Component } from "@wonderlandengine/api";
+import {state} from "./game";
+
 /*
       Copyright 2021. Futurewei Technologies Inc. All rights reserved.
       Licensed under the Apache License, Version 2.0 (the "License");
@@ -10,28 +13,19 @@
       See the License for the specific language governing permissions and
       limitations under the License.
 */
-/* Global function used to update the score display */
-var updateScore = null;
 /**
 @brief Marks an object with text component as "score display"
 
 The center top text object that shows various helpful tutorial
 texts and the score.
 */
-WL.registerComponent('score-display', {
-}, {
-    init: function() {
-        this.text = this.object.getComponent('text');
+export class ScoreDisplay extends Component {
+  static TypeName = "score-display";
+  static Properties = {};
 
-        updateScore = function(text) {
-            // console.log("score-display >> updateScore >> "+text);
-            this.text.text = text;
-        }.bind(this);
-
-        // updateScore("");
-        /* Initial text to set after session started */
-        WL.onXRSessionStart.push(function() {
-            // updateScore("Slowly scan\narea");
-        });
-    },
-});
+  init() {
+    state.updateScore = (text) => {
+      this.object.getComponent("text").text = text;
+    };
+  }
+}

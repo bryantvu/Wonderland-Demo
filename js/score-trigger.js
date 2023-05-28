@@ -10,9 +10,11 @@
       See the License for the specific language governing permissions and
       limitations under the License.
 */
-var score = 0;
-var victoryMusic = null;
-var gameOver = false;
+import { Component, Type } from "@wonderlandengine/api";
+import {state} from "./game";
+
+const tempQuat2 = new Float32Array(8);
+
 /**
 @brief Score trigger
 
@@ -22,46 +24,36 @@ increase the score.
 This component is automatically attached to newly spawned wastebins,
 see `wastebin-spawner`.
 */
-WL.registerComponent('score-trigger', {
-    particles: {type: WL.Type.Object}
-}, {
-    init: function() {
-        this.collision = this.object.getComponent('collision');
-        this.soundHit = this.object.addComponent('howler-audio-source', {src: 'sfx/high-pitched-aha-103125.mp3', volume: 1.9 });
-        this.soundPop = this.object.addComponent('howler-audio-source', {src: 'sfx/pop-94319.mp3', volume: 1.9 });
-        victoryMusic = this.object.addComponent('howler-audio-source', {src: 'music/level-win-6416.mp3', volume: 1.9 });
-    },
-    update: function(dt) {
-        let overlaps = this.collision.queryOverlaps();
+export class ScoreTrigger extends Component {
+  static TypeName = "score-trigger";
+  static Properties = {
+    particles: { type: Type.Object },
+  };
 
-        for(let i = 0; i < overlaps.length; ++i) {
-            let p = overlaps[i].object.getComponent('bullet-physics');
+  init() {
+    this.collision = this.object.getComponent("collision");
+    this.soundHit = this.object.addComponent("howler-audio-source", {
+      src: "sfx/high-pitched-aha-103125.mp3",
+      volume: 1.9,
+    });
+    this.soundPop = this.object.addComponent("howler-audio-source", {
+      src: "sfx/pop-94319.mp3",
+      volume: 1.9,
+    });
+    state.victoryMusic = this.object.addComponent("howler-audio-source", {
+      src: "music/level-win-6416.mp3",
+      volume: 1.9,
+    });
+  }
 
-            if(p && !p.scored) {
-                p.scored = true;
-                this.particles.transformWorld.set(this.object.transformWorld);
-                this.particles.getComponent('confetti-particles').burst();
-                this.object.parent.destroy();
+  onHit() {
+        this.particles.setTransformWorld(this.object.getTransformWorld(tempQuat2));
+        this.particles.getComponent("confetti-particles").burst();
+        this.object.parent.destroy();
 
-                ++score;
+        state.incrementScore();
 
-                let scoreString = "";
-                if(maxTargets!=score){
-                    scoreString = score+" rats down, "+(maxTargets-score)+" left";
-                }else{
-                    scoreString = "Congrats, you got all the rats!";
-                    victoryMusic.play();
-                    bgMusic.stop();
-                    mouseSound.stop();
-                    resetButton.unhide();
-                    gameOver = true;
-                }
-                
-                updateScore(scoreString);
-
-                this.soundHit.play();
-                this.soundPop.play();
-            }
-        }
-    },
-});
+        this.soundHit.play();
+        this.soundPop.play();
+  }
+}

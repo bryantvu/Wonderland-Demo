@@ -1,3 +1,8 @@
+import { Component, Type } from "@wonderlandengine/api";
+import {HowlerAudioSource} from "@wonderlandengine/components";
+import {BulletPhysics} from "./bullet-physics";
+import {state} from "./game";
+
 /*
       Copyright 2021. Futurewei Technologies Inc. All rights reserved.
       Licensed under the Apache License, Version 2.0 (the "License");
@@ -10,124 +15,120 @@
       See the License for the specific language governing permissions and
       limitations under the License.
 */
-var paperBallSpawner = null;
-var shotCount = 0;
+
+const tempQuat2 = new Float32Array(8);
+
 /**
-@brief 
+@brief
 */
-WL.registerComponent('paperball-spawner', {
-    paperballMesh: {type: WL.Type.Mesh},
-    paperballMaterial: {type: WL.Type.Material},
-    spawnAnimation: {type: WL.Type.Animation},
-    ballSpeed: {type: WL.Type.Float, default: 1.0},
-    maxPapers: {type: WL.Type.Int, default: 32},
-    debug: {type: WL.Type.Bool, default: false},
-}, {
-    start: function() {
-        WL.onXRSessionStart.push(this.xrSessionStart.bind(this));
-        this.start = new Float32Array(2);
+export class PaperballSpawner extends Component {
+  static TypeName = "paperball-spawner";
+  static Properties = {
+    paperballMesh: { type: Type.Mesh },
+    paperballMaterial: { type: Type.Material },
+    spawnAnimation: { type: Type.Animation },
+    ballSpeed: { type: Type.Float, default: 10.0 },
+    debug: { type: Type.Bool, default: false },
+  };
 
-        this.paperBalls = [];
-        this.nextIndex = 0;
-        this.lastTime = 0;
-        this.laser = null;
+  static onRegister(engine) {
+     engine.registerComponent(HowlerAudioSource);
+     engine.registerComponent(BulletPhysics);
+  }
 
-        if(this.debug) {
-            this.active = true;
-            this.object.getComponent('mesh').active = true;
-        }
-        paperBallSpawner = this.object;
-        this.soundClick = this.object.addComponent('howler-audio-source', {src: 'sfx/9mm-pistol-shoot-short-reverb-7152.mp3', volume: 0.5 });
-    },
-    onTouchDown: function(e) {
-        let curTime = Date.now();
-        ballTime = Math.abs(curTime-this.lastTime);
-        if(ballTime>50){
-            const end = e.inputSource.gamepad.axes;
+  nextIndex = 0;
+  lastTime = 0;
+  laser = null;
 
-            const dir = [0, 0, 0];
+  start() {
+    this.engine.onXRSessionStart.add(this.xrSessionStart.bind(this));
+    this.start = new Float32Array(2);
 
-            this.object.getComponent('cursor').cursorRayObject.getForward(dir);
+    if (this.debug) {
+      this.active = true;
+      this.object.getComponent("mesh").active = true;
+    }
+    this.soundClick = this.object.addComponent(HowlerAudioSource, {
+      src: "sfx/9mm-pistol-shoot-short-reverb-7152.mp3",
+      volume: 0.5,
+    });
 
-            this.pulse(e.inputSource.gamepad);
-            this.throw(dir);
-            this.lastTime=curTime;
-            this.soundClick.play();
-        }
-        
-    },
-    update: function(dt) {
-        this.time = (this.time || 0) + dt;
-    },
-    onTouchUp: function(e) {
-        
-    },
-    throw: function(dir) {
-        let paper =
-            this.paperBalls.length == this.maxPapers ?
-            this.paperBalls[this.nextIndex] : this.spawnBullet();
-        this.paperBalls[this.nextIndex] = paper;
+  }
 
-        this.nextIndex = (this.nextIndex + 1) % this.maxPapers;
+  onTouchDown(e) {
+    let curTime = Date.now();
+    const ballTime = Math.abs(curTime - this.lastTime);
+    if (ballTime > 50) {
+      const dir = [0, 0, 0];
 
-        paper.object.transformLocal.set(this.object.transformWorld);
-        paper.object.setDirty();
-        paper.physics.dir.set(dir);
+      this.object.getComponent("cursor").cursorRayObject.getForward(dir);
 
-        paper.physics.scored = false;
-        paper.physics.active = true;
+      this.pulse(e.inputSource.gamepad);
+      this.shoot(dir);
+      this.lastTime = curTime;
+      this.soundClick.play();
+    }
+  }
 
-        this.canThrow = false;
-        shotCount++;
-        updateCounter();
-        setTimeout(function() {
-            this.canThrow = true;
-        }.bind(this), 1000);
-    },
-    spawnBullet:function(){
-        const obj = WL.scene.addObject();
+  update(dt) {
+    this.time = (this.time || 0) + dt;
+  }
 
-        const mesh = obj.addComponent('mesh');
-        mesh.mesh = this.paperballMesh;
-        mesh.material = this.paperballMaterial;
+  shoot(dir) {
+    const paper = this.spawnBullet();
+    paper.object.setTransformLocal(this.object.getTransformWorld(tempQuat2));
+    paper.object.setDirty();
+    paper.physics.dir.set(dir);
 
-        obj.scale([0.05,0.05,0.05]);
+    paper.physics.scored = false;
+    paper.physics.active = true;
 
-        mesh.active = true;
+    ++state.shotCount;
+    state.updateCounter();
+  }
 
-        const col = obj.addComponent('collision');
-        col.shape = WL.Collider.Sphere;
-        col.extents[0] = 0.05;
-        col.group = (1 << 0);
-        col.active = true;
+  spawnBullet() {
+    const obj = this.engine.scene.addObject();
+    obj.scaleLocal([0.05, 0.05, 0.05]);
 
-        const physics = obj.addComponent('bullet-physics', {
-            speed: this.ballSpeed,
-        });
-        physics.active = true;
+    obj.addComponent("mesh", {
+        mesh: this.paperballMesh,
+        material: this.paperballMaterial,
+    });
+    obj.addComponent("collision", {
+        shape: WL.Collider.Sphere,
+        extents: [0.05, 0, 0],
+        group: 1 << 0,
+    });
 
-        return {
-            object: obj,
-            physics: physics
-        };
-    },
-    pulse: function (gamepad) {
-        let actuator;
-        if (!gamepad || !gamepad.hapticActuators) { return; }        
-        actuator = gamepad.hapticActuators[0];
-        if(!actuator) return;
-        actuator.pulse(1, 100);        
-    },
-    onActivate: function() {
-        if(WL.xrSession) {
-            WL.xrSession.addEventListener('selectstart', this.onTouchDown.bind(this));
-            WL.xrSession.addEventListener('selectend', this.onTouchUp.bind(this));
-        }
-    },
-    xrSessionStart: function(session) {
-        if(this.active) {
-            session.addEventListener('selectstart', this.onTouchDown.bind(this));
-            session.addEventListener('selectend', this.onTouchUp.bind(this));
-        }
-    },
-});
+    const physics = obj.addComponent("bullet-physics", {
+      speed: this.ballSpeed,
+    });
+
+    return {
+      object: obj,
+      physics: physics,
+    };
+  }
+
+  pulse(gamepad) {
+    let actuator;
+    if (!gamepad || !gamepad.hapticActuators) {
+      return;
+    }
+    actuator = gamepad.hapticActuators[0];
+    if (!actuator) return;
+    actuator.pulse(1, 100);
+  }
+
+  onActivate() {
+    if (!this.engine.xr) return;
+    this.engine.xr.session.addEventListener(
+      "selectstart", this.onTouchDown.bind(this));
+  }
+
+  xrSessionStart(session) {
+    if (!this.active) return;
+    session.addEventListener("selectstart", this.onTouchDown.bind(this));
+  }
+}

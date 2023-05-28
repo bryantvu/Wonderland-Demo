@@ -1,3 +1,6 @@
+import { Component, Type } from "@wonderlandengine/api";
+import { vec3 } from "gl-matrix";
+
 /*
       Copyright 2021. Futurewei Technologies Inc. All rights reserved.
       Licensed under the Apache License, Version 2.0 (the "License");
@@ -10,54 +13,66 @@
       See the License for the specific language governing permissions and
       limitations under the License.
 */
+
+const floorHeight = 0;
+let newDir = new Float32Array(3);
+
 /**
 @brief Bullet Physics
 
 */
-WL.registerComponent('bullet-physics', {
-    speed: {type: WL.Type.Float, default: 1.0},
-}, {
-    init: function() {
-        this.dir = new Float32Array(3);
-        this.position = [0, 0, 0];
-        this.object.getTranslationWorld(this.position);
-        this.correctedSpeed = this.speed/6;
+export class BulletPhysics extends Component {
+  static TypeName = "bullet-physics";
+  static Properties = {
+    speed: { type: Type.Float, default: 10.0 },
+  };
 
-        this.collision = this.object.getComponent('collision', 0);
-        if(!this.collision) {
-            console.warn("'bullet-physics' component on object", this.object.name, "requires a collision component");
-        }
-        
-    },
-    update: function(dt) {
-        //error checking?
-        if(isNaN(dt)){
-            console.log("dt is NaN");
-            return;
-        } 
+  init() {
+    this.dir = new Float32Array(3);
+    this.position = [0, 0, 0];
+    this.object.getPositionWorld(this.position);
+    this.correctedSpeed = this.speed;
 
-        //update position
-        this.object.getTranslationWorld(this.position);
-        //deactivate bullet if through the floor
-        if(this.position[1] <= floorHeight + this.collision.extents[0]) {
-            // console.log("bullet penetrated floor >> "+this.position[1]+" <= "+floorHeight + this.collision.extents[0]
-            // + " ( " + floorHeight, ", ", this.collision.extents[0]," )");
-            this.active = false;
-            return;
-        }
-        //deactivate bullet if travel distance too far
-        if(glMatrix.vec3.length(this.position)>175){
-            this.active = false;
-            return;
-        }
+    this.collision = this.object.getComponent("collision", 0);
+    if (!this.collision) {
+      console.warn(
+        "'bullet-physics' component on object",
+        this.object.name,
+        "requires a collision component"
+      );
+    }
+  }
 
-        let newDir = [0,0,0];
-        glMatrix.vec3.add(newDir, newDir, this.dir);
-        glMatrix.vec3.scale(newDir, newDir, this.correctedSpeed);
+  update(dt) {
+    this.object.getPositionWorld(this.position);
+    if (this.position[1] <= floorHeight + this.collision.extents[0]) {
+      this.destroy();
+      return;
+    }
 
-        glMatrix.vec3.add(this.position, this.position, newDir);
-        
-        this.object.resetTranslation();
-        this.object.translate(this.position);
-    },
-});
+    if (vec3.length(this.position) > 175) {
+      this.destroy();
+      return;
+    }
+
+    newDir.set(this.dir);
+    vec3.scale(newDir, newDir, this.correctedSpeed*dt);
+    vec3.add(this.position, this.position, newDir);
+    this.object.setPositionLocal(this.position);
+
+    let overlaps = this.collision.queryOverlaps();
+    for (let i = 0; i < overlaps.length; ++i) {
+      let t = overlaps[i].object.getComponent("score-trigger");
+      if(t && !this.scored) {
+        t.onHit();
+        this.destroy();
+        return;
+      }
+    }
+  }
+
+  destroy() {
+    /* Avoid destroying objects in update() */
+    setTimeout(() => this.object.destroy(), 0);
+  }
+}

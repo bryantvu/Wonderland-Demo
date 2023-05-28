@@ -1,3 +1,5 @@
+import { Component } from "@wonderlandengine/api";
+
 /*
       Copyright 2021. Futurewei Technologies Inc. All rights reserved.
       Licensed under the Apache License, Version 2.0 (the "License");
@@ -10,29 +12,26 @@
       See the License for the specific language governing permissions and
       limitations under the License.
 */
-/* Global function used to update the score display */
-var updateCounter = null;
+
+import { state } from "./game";
+
 /**
 @brief Marks an object with text component as "score display"
 
 The center top text object that shows various helpful tutorial
 texts and the score.
 */
-WL.registerComponent('shot-counter', {
-}, {
-    init: function() {
-        this.text = this.object.getComponent('text');
+export class ShotCounter extends Component {
+  static TypeName = "shot-counter";
+  static Properties = {};
 
-        updateCounter = function() {
-            if(!gameOver){
-                this.text.text = "Shots Fired: " + shotCount;
-            }
-        }.bind(this);
+  init() {
+    this.text = this.object.getComponent("text");
 
-        // updateScore("");
-        /* Initial text to set after session started */
-        WL.onXRSessionStart.push(function() {
-            // updateScore("Slowly scan\narea");
-        });
-    },
-});
+    state.updateCounter = () => {
+      if (!state.gameOver) {
+        this.text.text = "Shots Fired: " + state.shotCount;
+      }
+    };
+  }
+}

@@ -1,3 +1,8 @@
+import { Component, Type } from "@wonderlandengine/api";
+import {HowlerAudioSource} from "@wonderlandengine/components";
+import {state} from "./game";
+import {ScoreTrigger} from "./score-trigger";
+
 /*
       Copyright 2021. Futurewei Technologies Inc. All rights reserved.
       Licensed under the Apache License, Version 2.0 (the "License");
@@ -10,78 +15,97 @@
       See the License for the specific language governing permissions and
       limitations under the License.
 */
-var floorHeight = 0;
-var maxTargets = 0;
-var mouseSound = null;
-var mouseSpawner = null;
+
+const tempQuat2 = new Float32Array(8);
 
 /**
 @brief
 */
-WL.registerComponent('mouse-spawner', {
-    targetMesh: {type: WL.Type.Mesh},
-    targetMaterial: {type: WL.Type.Material},
-    spawnAnimation: {type: WL.Type.Animation},
-    maxTargets: {type: WL.Type.Int, default: 20},
-    particles: {type: WL.Type.Object},
-}, {
-    init: function() {
-        maxTargets = this.maxTargets;
-        this.time = 0;
-        this.spawnInterval = 3;
-        mouseSound = this.object.addComponent('howler-audio-source', {src: 'sfx/critter-40645.mp3', loop: true, volume: 1.0 });
-    },
-    start: function() {
-        // WL.onXRSessionStart.push(this.xrSessionStart.bind(this));
-        this.targets = [];
-        this.spawnTarget();
+export class MouseSpawner extends Component {
+  static TypeName = "mouse-spawner";
+  static Properties = {
+    targetMesh: { type: Type.Mesh },
+    targetMaterial: { type: Type.Material },
+    spawnAnimation: { type: Type.Animation },
+    maxTargets: { type: Type.Int, default: 20 },
+    particles: { type: Type.Object },
+  };
 
-        mouseSpawner = this;
-    },
-    update: function(dt) {
-        this.time += dt;
-        if(this.targets.length >= this.maxTargets) return;
+  static onRegister(engine) {
+     engine.registerComponent(ScoreTrigger);
+     engine.registerComponent(HowlerAudioSource);
+  }
 
-        if(this.time >= this.spawnInterval){
-            this.time = 0;
-            this.spawnTarget();
-        }
-    },
-    spawnTarget: function() {
+  time = 0;
+  spawnInterval = 3;
+  targets = [];
 
-        const obj = WL.scene.addObject();
-        obj.transformLocal.set(this.object.transformWorld);
+  start() {
+    state.mouseSpawner = this;
+    state.mouseSound = this.object.addComponent(HowlerAudioSource, {
+      src: "sfx/critter-40645.mp3",
+      loop: true,
+      volume: 1.0,
+    });
 
-        obj.scale([0.1, 0.1, 0.1]);
-        const mesh = obj.addComponent('mesh');
-        mesh.mesh = this.targetMesh;
-        mesh.material = this.targetMaterial;
-        mesh.active = true;
-        obj.addComponent("mouse-mover");
+    state.maxTargets = this.maxTargets;
 
-        if(this.spawnAnimation) {
-            const anim = obj.addComponent('animation');
-            anim.playCount = 1;
-            anim.animation = this.spawnAnimation;
-            anim.active = true;
-            anim.play();
-        }
+    this.spawnTarget();
+  }
 
-        /* Add scoring trigger */
-        const trigger = WL.scene.addObject(obj);
-        const col = trigger.addComponent('collision');
-        col.collider = WL.Collider.Sphere;
-        col.extents[0] = 0.6;
-        col.group = (1 << 0);
-        col.active = true;
-        trigger.translate([0, 0.4, 0]);
-        trigger.addComponent('score-trigger', {
-            particles: this.particles
-        });
+  update(dt) {
+    this.time += dt;
+    if (this.targets.length >= this.maxTargets) return;
 
-        obj.setDirty();
+    if (this.time >= this.spawnInterval) {
+      this.time = 0;
+      this.spawnTarget();
+    }
+  }
 
-        this.targets.push(obj);
-        mouseSound.play();
-    },
-});
+  reset() {
+    for (let i = 0; i < this.targets.length; ++i) {
+      this.mouseSpawner.targets[i].destroy();
+    }
+    this.object.resetPosition();
+  }
+
+  spawnTarget() {
+    const obj = this.engine.scene.addObject();
+    obj.setTransformLocal(this.object.getTransformWorld(tempQuat2));
+
+    obj.scaleLocal([0.1, 0.1, 0.1]);
+    const mesh = obj.addComponent("mesh");
+    mesh.mesh = this.targetMesh;
+    mesh.material = this.targetMaterial;
+    mesh.active = true;
+    obj.addComponent("mouse-mover");
+
+    if (this.spawnAnimation) {
+      const anim = obj.addComponent("animation");
+      anim.playCount = 1;
+      anim.animation = this.spawnAnimation;
+      anim.active = true;
+      anim.play();
+    }
+
+    /* Add scoring trigger */
+    const trigger = this.engine.scene.addObject(obj);
+    trigger.addComponent("collision", {
+        collider: WL.Collider.Sphere,
+        extents: [0.6, 0, 0],
+        group: 1 << 0,
+        active: true,
+    });
+    /* Translate a lot because of scale and rotation of parent */
+    trigger.translateLocal([0, 0, -4]);
+    trigger.addComponent("score-trigger", {
+      particles: this.particles,
+    });
+
+    obj.setDirty();
+
+    this.targets.push(obj);
+    state.mouseSound.play();
+  }
+}

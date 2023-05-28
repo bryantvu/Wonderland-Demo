@@ -10,65 +10,80 @@
       See the License for the specific language governing permissions and
       limitations under the License.
 */
+import { Component, Type } from "@wonderlandengine/api";
+import { vec3 } from "gl-matrix";
+
 /**
 @brief (Unused) Moves a mesh back and forth
 
 Feel free to extend the game with a PR!
 */
-WL.registerComponent('mouse-mover', {
-    speed: {type: WL.Type.Float, default: 1.0},
-}, {
-    init: function() {
-        this.time = 0;
-        this.state = 0;
-        this.currentPos = [0, 0, 0];
-        this.pointA = [0, 0, 0];
-        this.pointB = [0, 0, 0];
+export class MouseMover extends Component {
+  static TypeName = "mouse-mover";
+  static Properties = {
+    speed: { type: Type.Float, default: 1.0 },
+  };
 
-        this.moveDuration = 2;
-        this.travelDistance = this.moveDuration*1.5;
+  time = 0;
+  state = 0;
+  currentPos = [0, 0, 0];
+  pointA = [0, 0, 0];
+  pointB = [0, 0, 0];
+  moveDuration = 2;
 
-        glMatrix.quat2.getTranslation(this.currentPos, this.object.transformLocal);
+  savedAngle = 0;
+  previousAngle = 0;
+  newAngle = 0;
 
-        glMatrix.vec3.add(this.pointA, this.pointA, this.currentPos);
-        glMatrix.vec3.add(this.pointB, this.currentPos, [0, 0, 1.5]);
+  init() {
+    this.travelDistance = this.moveDuration * 1.5;
 
-        this.savedAngle = 0;
-        this.previousAngle = 0;
-        this.newAngle = 0;
-    },
-    update: function(dt) {
-        if(isNaN(dt)) return;
+    this.object.getPositionLocal(this.currentPos);
 
-        this.time += dt;
-        if(this.time >= this.moveDuration) {
-            this.time -= this.moveDuration;
+    vec3.add(this.pointA, this.pointA, this.currentPos);
+    vec3.add(this.pointB, this.currentPos, [0, 0, 1.5]);
+  }
 
-            this.state = Math.floor(Math.random()*4);
-            this.pointA = this.currentPos;
+  update(dt) {
+    if (isNaN(dt)) return;
 
-            let x = Math.random()*this.travelDistance;
-            let z = Math.sqrt(Math.pow(this.travelDistance,2) - Math.pow(x,2));
+    this.time += dt;
+    if (this.time >= this.moveDuration) {
+      this.time -= this.moveDuration;
 
-            const randomNegative = Math.round(Math.random()) * 2 - 1;
-            const randomNegative2 = Math.round(Math.random()) * 2 - 1;
+      this.state = Math.floor(Math.random() * 4);
+      this.pointA = this.currentPos;
 
-            glMatrix.vec3.add(this.pointB, this.pointA, [x*randomNegative, 0, z*randomNegative2]);
-            // console.log("mouse >> ",(x*randomNegative), ", ", (z*randomNegative2));
+      let x = Math.random() * this.travelDistance;
+      let z = Math.sqrt(Math.pow(this.travelDistance, 2) - Math.pow(x, 2));
 
-            this.newAngle = Math.floor(Math.random()*180);
-            this.previousAngle = this.savedAngle;
-        }
+      const randomNegative = Math.round(Math.random()) * 2 - 1;
+      const randomNegative2 = Math.round(Math.random()) * 2 - 1;
 
-        this.object.resetTranslation();
-        if(this.time <= this.moveDuration/2) {
-            this.object.resetRotation();
-            this.savedAngle = (this.time*this.newAngle)+this.previousAngle;
-            this.object.rotateAxisAngleDeg([0, 0, 1], this.savedAngle);
-            this.object.rotateAxisAngleDeg([1, 0, 0], 90);
-        }else{
-            glMatrix.vec3.lerp(this.currentPos, this.pointA, this.pointB, this.time-this.moveDuration/2);
-        }
-        this.object.translate(this.currentPos);
-    },
-});
+      vec3.add(this.pointB, this.pointA, [
+        x * randomNegative,
+        0,
+        z * randomNegative2,
+      ]);
+
+      this.newAngle = Math.floor(Math.random() * 180);
+      this.previousAngle = this.savedAngle;
+    }
+
+    this.object.resetPosition();
+    if (this.time <= this.moveDuration / 2) {
+      this.object.resetRotation();
+      this.savedAngle = this.time * this.newAngle + this.previousAngle;
+      this.object.rotateAxisAngleDegLocal([0, 0, 1], this.savedAngle);
+      this.object.rotateAxisAngleDegLocal([1, 0, 0], 90);
+    } else {
+      vec3.lerp(
+        this.currentPos,
+        this.pointA,
+        this.pointB,
+        this.time - this.moveDuration / 2
+      );
+    }
+    this.object.translateLocal(this.currentPos);
+  }
+}
